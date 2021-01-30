@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 import pathlib
 import pvlib
 import matplotlib as mpl
@@ -34,6 +35,8 @@ EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 # read years from SURFRAD path
 PATH = pathlib.Path('C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
 YEARS = list(str(y) for y in PATH.iterdir())
+
+# accumulate daily energy
 EDAILY = []
 
 for year in YEARS:
@@ -57,6 +60,9 @@ for year in YEARS:
     solar_azimuth = sp.azimuth.values
     zenith = sp.zenith.values
     ghi = df.ghi.values
+
+    # zero out negative (night?) GHI
+    ghi = np.where(ghi < 0, 0, ghi)
 
     # we don't trust SURFRAD DNI or DHI b/c it's often missing
     # dni = df.dni.values
@@ -84,14 +90,23 @@ for year in YEARS:
     dni_extra = pvlib.irradiance.get_extra_radiation(TIMES).values
 
     # estimate air temp
+    year_start = year.rsplit('\\', 1)[1]
+    year_minutes = pd.date_range(
+        start=year_start, freq='T', periods=527040, tz='UTC')
     TL = pvlib.clearsky.lookup_linke_turbidity(TIMES, LATITUDE, LONGITUDE)
     AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
     PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
     AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
     CS = pvlib.clearsky.ineichen(solar_zenith, AM, TL, ELEVATION, dni_extra)
     cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
-        TIMES, LATITUDE, LONGITUDE)
-    temp_air = cs_temp_air * ghi / CS.ghi.values
+        year_minutes, LATITUDE, LONGITUDE)
+
+    # scale clear sky air temp to SURFRAD, and zero out night
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        temp_air = np.where(
+            CS.ghi.values <= 0, 0,
+            cs_temp_air.loc[TIMES].values * ghi / CS.ghi.values)
 
     # tracker positions
     tracker = pvlib.tracking.singleaxis(solar_zenith, solar_azimuth)
@@ -122,10 +137,21 @@ for year in YEARS:
             CECMOD_MONO.R_sh_ref, CECMOD_MONO.R_s, CECMOD_MONO.Adjust)
     mpp = pvlib.pvsystem.max_power_point(*cecparams, method='newton')
     mpp = pd.DataFrame(mpp, index=TIMES)
-    Edaily = mpp.p_mp.resample('D').sum()
+
+    # find ourly averages and daily totals
+    Ehourly = mpp.p_mp.resample('H').mean()
+    Edaily = Ehourly.resample('D').sum()
     EDAILY.append(Edaily)
 
+# get yearly totals
+EYEAR = [sum(e) for e in EDAILY if len(e) > 350]
+
+LOGGER.setLevel(logging.CRITICAL)
+
+f, ax = plt.subplots(2, 1, figsize=(8, 6))
 yield_daily = pd.concat(EDAILY) / 300.0 / 24 * 100
-yield_daily.plot()
-plt.ylabel('Daily DC Capacity [%]')
-plt.title('Multiyear data')
+yield_daily.plot(ax=ax[0])
+ax[0].set_ylabel('Daily DC Capacity [%]')
+ax[0].set_title('Multiyear data')
+sns.histplot(EYEAR, kde=True, ax=ax[1])
+plt.tight_layout()
