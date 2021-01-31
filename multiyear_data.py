@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pvlib
 import rdtools
+from scipy import stats
 import seaborn as sns
 import psm3tmy
 
@@ -39,8 +40,8 @@ PATH = pathlib.Path(
     'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
 YEARS = list(str(y) for y in PATH.iterdir())
 
-TMY2_PATHS = {'SPRINGFIELD, IL': '93822.tm2'}
-TMY3_PATHS = {'SPRINGFIELD CAPITAL AP,IL': '724390TYA.CSV'}
+TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/93822.tm2'
+TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/724390TYA.CSV'
 
 # accumulate daily energy
 EDAILY = {}
@@ -165,14 +166,22 @@ P90 = EYEAR.quantile(0.1)
 psm3edaily = psm3tmy.run_psm3tmy(LATITUDE, LONGITUDE, CECMOD_MONO)
 psm3eyear = sum(psm3edaily) / 1000.0
 LOGGER.debug('PSM3: %g[kWh]', psm3eyear)
+psm3quantile = stats.percentileofscore(EYEAR, psm3eyear)
+LOGGER.debug('%g quantile of SURFRAD years', psm3quantile)
 
 # rum TMY2
-tmy2edaily = {}
-tmy2eyear = {}
-for tmy2site, tmy2path in TMY2_PATHS.items():
-    tmy2edaily[tmy2site] = psm3tmy.run_tmy2(tmy2path, LATITUDE, LONGITUDE, CECMOD_MONO)
-    tmy2eyear[tmy2site] = sum(tmy2edaily) / 1000.0
-    LOGGER.debug('TMY2 site %s: %g[kWh]', tmy2site, tmy2eyear)
+tmy2edaily = psm3tmy.run_tmy2(TMY2_PATH, LATITUDE, LONGITUDE, CECMOD_MONO)
+tmy2eyear = sum(tmy2edaily) / 1000.0
+LOGGER.debug('TMY2 (%s): %g[kWh]', TMY2_PATH, tmy2eyear)
+tmy2quantile = stats.percentileofscore(EYEAR, tmy2eyear)
+LOGGER.debug('%g quantile of SURFRAD years', tmy2quantile)
+
+# rum TMY3
+tmy3edaily = psm3tmy.run_tmy3(TMY3_PATH, LATITUDE, LONGITUDE, CECMOD_MONO)
+tmy3eyear = sum(tmy3edaily) / 1000.0
+LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH, tmy3eyear)
+tmy3quantile = stats.percentileofscore(EYEAR, tmy3eyear)
+LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile)
 
 # stop logging
 LOGGER.setLevel(logging.CRITICAL)
@@ -181,7 +190,7 @@ LOGGER.setLevel(logging.CRITICAL)
 SITE = PATH.parts[-1]
 
 # make plots
-f, ax = plt.subplots(2, 1, figsize=(8, 6), num=SITE)
+f, ax = plt.subplots(2, 1, figsize=(10, 8), num=SITE)
 yield_daily = pd.concat(EDAILY.values()) / 300.0 / 24.0 * 100.0
 yield_daily.plot(ax=ax[0])
 ax[0].set_ylabel('Daily DC Capacity [%]')
@@ -190,9 +199,12 @@ sns.histplot(EYEAR.values, kde=True, ax=ax[1])
 ylim = ax[1].get_ylim()
 ax[1].plot([P50, P50], ylim, 'b--', [P90, P90], ylim, 'b--')
 ax[1].plot([psm3eyear]*2, ylim)
-for tmy2site, tmy2data in tmy2eyear.items():
-    ax[1].plot([tmy2data]*2, ylim, 'g--')
-    ax[1].annotate(tmy2site, [tmy2eyear, 0.95*ylim[1]])
-ax[1].legend(['KDE', 'P50', 'P90', 'PSM3'])
-ax[1].set_title(f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]')
+ax[1].plot([tmy2eyear]*2, ylim, 'g--')
+ax[1].annotate(f' {tmy2quantile:g}%', (tmy2eyear, 0.95*ylim[1]))
+ax[1].plot([tmy3eyear]*2, ylim, 'k--')
+ax[1].annotate(f' {tmy3quantile:g}%', (tmy3eyear, 0.85*ylim[1]))
+ax[1].legend(['KDE', 'P50', 'P90', 'PSM3', 'TMY2', 'TMY3'])
+ax[1].set_title(
+    f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]'
+    f'\nPSM3 = {psm3eyear:g}[kWh], TMY2 = {tmy2eyear:g}[kWh], TMY3 = {tmy3eyear:g}[kWh]')
 plt.tight_layout()
