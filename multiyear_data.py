@@ -39,6 +39,9 @@ PATH = pathlib.Path(
     'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
 YEARS = list(str(y) for y in PATH.iterdir())
 
+TMY2_PATHS = {'SPRINGFIELD, IL': '93822.tm2'}
+TMY3_PATHS = {'SPRINGFIELD CAPITAL AP,IL': '724390TYA.CSV'}
+
 # accumulate daily energy
 EDAILY = {}
 
@@ -161,7 +164,15 @@ P90 = EYEAR.quantile(0.1)
 # rum PSM3 TMY
 psm3edaily = psm3tmy.run_psm3tmy(LATITUDE, LONGITUDE, CECMOD_MONO)
 psm3eyear = sum(psm3edaily) / 1000.0
+LOGGER.debug('PSM3: %g[kWh]', psm3eyear)
 
+# rum TMY2
+tmy2edaily = {}
+tmy2eyear = {}
+for tmy2site, tmy2path in TMY2_PATHS.items():
+    tmy2edaily[tmy2site] = psm3tmy.run_tmy2(tmy2path, LATITUDE, LONGITUDE, CECMOD_MONO)
+    tmy2eyear[tmy2site] = sum(tmy2edaily) / 1000.0
+    LOGGER.debug('TMY2 site %s: %g[kWh]', tmy2site, tmy2eyear)
 
 # stop logging
 LOGGER.setLevel(logging.CRITICAL)
@@ -179,6 +190,9 @@ sns.histplot(EYEAR.values, kde=True, ax=ax[1])
 ylim = ax[1].get_ylim()
 ax[1].plot([P50, P50], ylim, 'b--', [P90, P90], ylim, 'b--')
 ax[1].plot([psm3eyear]*2, ylim)
+for tmy2site, tmy2data in tmy2eyear.items():
+    ax[1].plot([tmy2data]*2, ylim, 'g--')
+    ax[1].annotate(tmy2site, [tmy2eyear, 0.95*ylim[1]])
 ax[1].legend(['KDE', 'P50', 'P90', 'PSM3'])
 ax[1].set_title(f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]')
 plt.tight_layout()
