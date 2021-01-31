@@ -1,5 +1,4 @@
 import calendar
-import json
 import logging
 import os
 import pathlib
@@ -38,13 +37,11 @@ EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 
 # read years from SURFRAD path
 PATH = pathlib.Path(
-    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Desert_Rock_NV')
+    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
 YEARS = list(str(y) for y in PATH.iterdir())
 
-TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.tm2'
-TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
-TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
-TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
+TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/93822.tm2'
+TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/724390TYA.CSV'
 
 # accumulate daily energy
 EDAILY = {}
@@ -185,18 +182,6 @@ tmy3eyear = sum(tmy3edaily) / 1000.0
 LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH, tmy3eyear)
 tmy3quantile = stats.percentileofscore(EYEAR, tmy3eyear)
 LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile)
-# rum TMY3 #2 AURORA BUCKLEY
-tmy3edaily_2 = psm3tmy.run_tmy3(TMY3_PATH_2, LATITUDE, LONGITUDE, CECMOD_MONO)
-tmy3eyear_2 = sum(tmy3edaily_2) / 1000.0
-LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_2, tmy3eyear_2)
-tmy3quantile_2 = stats.percentileofscore(EYEAR, tmy3eyear_2)
-LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_2)
-# rum TMY3 #3 DENVER/CONTINENTAL
-tmy3edaily_3 = psm3tmy.run_tmy3(TMY3_PATH_3, LATITUDE, LONGITUDE, CECMOD_MONO)
-tmy3eyear_3 = sum(tmy3edaily_3) / 1000.0
-LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_3, tmy3eyear_3)
-tmy3quantile_3 = stats.percentileofscore(EYEAR, tmy3eyear_3)
-LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_3)
 
 # stop logging
 LOGGER.setLevel(logging.CRITICAL)
@@ -218,28 +203,8 @@ ax[1].plot([tmy2eyear]*2, ylim, 'g--')
 ax[1].annotate(f' {tmy2quantile:g}%', (tmy2eyear, 0.95*ylim[1]))
 ax[1].plot([tmy3eyear]*2, ylim, 'k--')
 ax[1].annotate(f' {tmy3quantile:g}%', (tmy3eyear, 0.85*ylim[1]))
-ax[1].plot([tmy3eyear_2]*2, ylim, 'k--')
-ax[1].annotate(f' {tmy3quantile_2:g}%', (tmy3eyear_2, 0.75*ylim[1]))
-ax[1].plot([tmy3eyear_3]*2, ylim, 'k--')
-ax[1].annotate(f' {tmy3quantile_3:g}%', (tmy3eyear_3, 0.65*ylim[1]))
 ax[1].legend(['KDE', 'P50', 'P90', 'PSM3', 'TMY2', 'TMY3'])
 ax[1].set_title(
-    f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh],'
-    f' PSM3({psm3quantile:g}%) = {psm3eyear:g}[kWh]'
-    f'\nTMY2 = {tmy2eyear:g}[kWh], TMY3 (725650) = {tmy3eyear:g}[kWh],'
-    f' TMY3 (724695) = {tmy3eyear_2:g}[kWh], TMY3 (724666) = {tmy3eyear_3:g}[kWh]')
+    f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]'
+    f'\nPSM3 = {psm3eyear:g}[kWh], TMY2 = {tmy2eyear:g}[kWh], TMY3 = {tmy3eyear:g}[kWh]')
 plt.tight_layout()
-
-# save all
-plt.savefig(f'{SITE}.png')
-yield_daily.to_csv(f'{SITE}_yield_daily.csv', index_label='datetime')
-EYEAR.to_csv(f'{SITE}_EYEAR.csv', index_label='year', header=['EYEAR'])
-results = {
-    'P50': P50, 'P90': P90,
-    'psm3eyear': psm3eyear, 'psm3quantile': psm3quantile,
-    'tmy2eyear': tmy2eyear, 'tmy2quantile': tmy2quantile,
-    'tmy3eyear': tmy3eyear, 'tmy3quantile': tmy3quantile,
-    'tmy3eyear_2': tmy3eyear_2, 'tmy3quantile_2': tmy3quantile_2,
-    'tmy3eyear_3': tmy3eyear_3, 'tmy3quantile_3': tmy3quantile_3}
-with open(f'{SITE}_results.json', 'w') as f:
-    json.dump(results, f, indent=2)

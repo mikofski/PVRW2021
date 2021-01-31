@@ -38,13 +38,13 @@ EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 
 # read years from SURFRAD path
 PATH = pathlib.Path(
-    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Desert_Rock_NV')
+    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Boulder_CO')
 YEARS = list(str(y) for y in PATH.iterdir())
 
-TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.tm2'
-TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
-TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
-TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
+TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/94018.tm2'
+TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/725650TYA.CSV'
+TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/724695TYA.CSV'
+TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/724666TYA.CSV'
 
 # accumulate daily energy
 EDAILY = {}
