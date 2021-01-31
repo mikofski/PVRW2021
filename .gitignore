@@ -1,1 +1,10 @@
-93822.tm2 94008.tm2 94018.tm2
+nrel_api.key
+*.tm2
+__pycache__/
+Boulder_CO/
+Bondville_IL/
+Desert_Rock_NV/
+Penn_State_PA/
+Goodwin_Creek_MS/
+Sioux_Falls_SD/
+Fort_Peck_MT/
