@@ -2,15 +2,15 @@ import calendar
 import logging
 import os
 import pathlib
-import statistics
 import warnings
-import pvlib
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import pvlib
 import rdtools
 import seaborn as sns
+import psm3tmy
 
 logging.basicConfig()
 LOGGER = logging.getLogger()
@@ -28,7 +28,7 @@ plt.ion()
 
 # choose typical front-contact silicon modules
 CECMODS = pvlib.pvsystem.retrieve_sam('CECMod')
-CECMOD_POLY = CECMODS['Canadian_Solar_Inc__CS6X_300P']
+# for now, for simplicity, just one mono-silicon module, mono
 CECMOD_MONO = CECMODS['Canadian_Solar_Inc__CS6X_300M']
 
 NREL_API_KEY = os.getenv('NREL_API_KEY', 'DEMO_KEY')
@@ -45,8 +45,6 @@ EDAILY = {}
 for year in YEARS:
     LOGGER.debug('year: %s', year)
     yearpath = PATH / year
-    # header, data = pvlib.iotools.get_psm3(
-    #     LATITUDE, LONGITUDE, NREL_API_KEY, EMAIL, names=str(year))
     data = [pvlib.iotools.read_surfrad(f) for f in yearpath.iterdir()]
     dfs, heads = zip(*data)
     df = pd.concat(dfs)
@@ -160,6 +158,11 @@ LOGGER.info('annual statistics [kWh]:\n%r', EYEAR.describe())
 P50 = EYEAR.median()
 P90 = EYEAR.quantile(0.1)
 
+# rum PSM3 TMY
+psm3edaily = psm3tmy.run_psm3tmy(LATITUDE, LONGITUDE, CECMOD_MONO)
+psm3eyear = sum(psm3edaily) / 1000.0
+
+
 # stop logging
 LOGGER.setLevel(logging.CRITICAL)
 
@@ -175,6 +178,7 @@ ax[0].set_title(f'{SITE} Multiyear Data')
 sns.histplot(EYEAR.values, kde=True, ax=ax[1])
 ylim = ax[1].get_ylim()
 ax[1].plot([P50, P50], ylim, 'b--', [P90, P90], ylim, 'b--')
-ax[1].legend(['KDE', 'P50', 'P90'])
+ax[1].plot([psm3eyear]*2, ylim)
+ax[1].legend(['KDE', 'P50', 'P90', 'PSM3'])
 ax[1].set_title(f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]')
 plt.tight_layout()
