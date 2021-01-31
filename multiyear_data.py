@@ -38,14 +38,14 @@ EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 
 # read years from SURFRAD path
 PATH = pathlib.Path(
-    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Goodwin_Creek_MS')
+    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Penn_State_PA')
 YEARS = list(str(y) for y in PATH.iterdir())
 
-TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/13893.tm2'
-TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/722359TYA.CSV'
-TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/722356TYA.CSV'
-TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/723340TYA.CSV'
-TMY3_PATH_4 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/723306TYA.CSV'
+TMY2_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/14778.tm2'
+TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/725125TYA.CSV'
+# TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
+# TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
+# TMY3_PATH_4 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
 
 # accumulate daily energy
 EDAILY = {}
@@ -186,24 +186,24 @@ tmy3eyear = sum(tmy3edaily) / 1000.0
 LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH, tmy3eyear)
 tmy3quantile = stats.percentileofscore(EYEAR, tmy3eyear)
 LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile)
-# run TMY3 #2 GREENVILLE
-tmy3edaily_2 = psm3tmy.run_tmy3(TMY3_PATH_2, LATITUDE, LONGITUDE, CECMOD_MONO)
-tmy3eyear_2 = sum(tmy3edaily_2) / 1000.0
-LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_2, tmy3eyear_2)
-tmy3quantile_2 = stats.percentileofscore(EYEAR, tmy3eyear_2)
-LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_2)
-# run TMY3 #3 MEMPHIS INTL AP
-tmy3edaily_3 = psm3tmy.run_tmy3(TMY3_PATH_3, LATITUDE, LONGITUDE, CECMOD_MONO)
-tmy3eyear_3 = sum(tmy3edaily_3) / 1000.0
-LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_3, tmy3eyear_3)
-tmy3quantile_3 = stats.percentileofscore(EYEAR, tmy3eyear_3)
-LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_3)
-# run TMY3 #4 COLUMBUS AFB
-tmy3edaily_4 = psm3tmy.run_tmy3(TMY3_PATH_4, LATITUDE, LONGITUDE, CECMOD_MONO)
-tmy3eyear_4 = sum(tmy3edaily_4) / 1000.0
-LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_4, tmy3eyear_4)
-tmy3quantile_4 = stats.percentileofscore(EYEAR, tmy3eyear_4)
-LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_4)
+# run TMY3 #2
+# tmy3edaily_2 = psm3tmy.run_tmy3(TMY3_PATH_2, LATITUDE, LONGITUDE, CECMOD_MONO)
+# tmy3eyear_2 = sum(tmy3edaily_2) / 1000.0
+# LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_2, tmy3eyear_2)
+# tmy3quantile_2 = stats.percentileofscore(EYEAR, tmy3eyear_2)
+# LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_2)
+# run TMY3 #3
+# tmy3edaily_3 = psm3tmy.run_tmy3(TMY3_PATH_3, LATITUDE, LONGITUDE, CECMOD_MONO)
+# tmy3eyear_3 = sum(tmy3edaily_3) / 1000.0
+# LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_3, tmy3eyear_3)
+# tmy3quantile_3 = stats.percentileofscore(EYEAR, tmy3eyear_3)
+# LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_3)
+# run TMY3 #4
+# tmy3edaily_4 = psm3tmy.run_tmy3(TMY3_PATH_4, LATITUDE, LONGITUDE, CECMOD_MONO)
+# tmy3eyear_4 = sum(tmy3edaily_4) / 1000.0
+# LOGGER.debug('TMY3 (%s): %g[kWh]', TMY3_PATH_4, tmy3eyear_4)
+# tmy3quantile_4 = stats.percentileofscore(EYEAR, tmy3eyear_4)
+# LOGGER.debug('%g quantile of SURFRAD years', tmy3quantile_4)
 
 # stop logging
 LOGGER.setLevel(logging.CRITICAL)
@@ -225,17 +225,18 @@ ax[1].plot([tmy2eyear]*2, ylim, 'g--')
 ax[1].annotate(f' {tmy2quantile:g}%', (tmy2eyear, 0.95*ylim[1]))
 ax[1].plot([tmy3eyear]*2, ylim, 'k--')
 ax[1].annotate(f' {tmy3quantile:g}%', (tmy3eyear, 0.85*ylim[1]))
-ax[1].plot([tmy3eyear_2]*2, ylim, 'k--')
-ax[1].annotate(f' {tmy3quantile_2:g}%', (tmy3eyear_2, 0.75*ylim[1]))
-ax[1].plot([tmy3eyear_3]*2, ylim, 'k--')
-ax[1].annotate(f' {tmy3quantile_3:g}%', (tmy3eyear_3, 0.65*ylim[1]))
-ax[1].plot([tmy3eyear_4]*2, ylim, 'k--')
-ax[1].annotate(f' {tmy3quantile_4:g}%', (tmy3eyear_4, 0.55*ylim[1]))
+# ax[1].plot([tmy3eyear_2]*2, ylim, 'k--')
+# ax[1].annotate(f' {tmy3quantile_2:g}%', (tmy3eyear_2, 0.75*ylim[1]))
+# ax[1].plot([tmy3eyear_3]*2, ylim, 'k--')
+# ax[1].annotate(f' {tmy3quantile_3:g}%', (tmy3eyear_3, 0.65*ylim[1]))
+# ax[1].plot([tmy3eyear_4]*2, ylim, 'k--')
+# ax[1].annotate(f' {tmy3quantile_4:g}%', (tmy3eyear_4, 0.55*ylim[1]))
 ax[1].legend(['KDE', 'P50', 'P90', 'PSM3', 'TMY2', 'TMY3'])
 ax[1].set_title(
     f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]'
-    f'\nPSM3 = {psm3eyear:g}[kWh], TMY2 = {tmy2eyear:g}[kWh], TMY3(722359) = {tmy3eyear:g}[kWh]'
-    f'\nTMY3(722356) = {tmy3eyear_2:g}[kWh], TMY3(723340) = {tmy3eyear_3:g}[kWh], TMY3(723306) = {tmy3eyear_4:g}[kWh]')
+    f'\nPSM3 = {psm3eyear:g}[kWh], TMY2 = {tmy2eyear:g}[kWh], TMY3 = {tmy3eyear:g}[kWh]'
+    # f'\nTMY3(722356) = {tmy3eyear_2:g}[kWh], TMY3(723340) = {tmy3eyear_3:g}[kWh], TMY3(723306) = {tmy3eyear_4:g}[kWh]'
+)
 plt.tight_layout()
 
 # save all
@@ -247,9 +248,9 @@ results = {
     'psm3eyear': psm3eyear, 'psm3quantile': psm3quantile,
     'tmy2eyear': tmy2eyear, 'tmy2quantile': tmy2quantile,
     'tmy3eyear': tmy3eyear, 'tmy3quantile': tmy3quantile,
-    'tmy3eyear_2': tmy3eyear_2, 'tmy3quantile_2': tmy3quantile_2,
-    'tmy3eyear_3': tmy3eyear_3, 'tmy3quantile_3': tmy3quantile_3,
-    'tmy3eyear_4': tmy3eyear_4, 'tmy3quantile_4': tmy3quantile_4,
+    # 'tmy3eyear_2': tmy3eyear_2, 'tmy3quantile_2': tmy3quantile_2,
+    # 'tmy3eyear_3': tmy3eyear_3, 'tmy3quantile_3': tmy3quantile_3,
+    # 'tmy3eyear_4': tmy3eyear_4, 'tmy3quantile_4': tmy3quantile_4,
 }
 with open(f'{SITE}_results.json', 'w') as f:
     json.dump(results, f, indent=2)
