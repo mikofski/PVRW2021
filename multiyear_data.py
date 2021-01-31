@@ -1,7 +1,9 @@
+import calendar
 import logging
 import os
-import warnings
 import pathlib
+import statistics
+import warnings
 import pvlib
 import matplotlib as mpl
 from matplotlib import pyplot as plt
@@ -33,16 +35,18 @@ NREL_API_KEY = os.getenv('NREL_API_KEY', 'DEMO_KEY')
 EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 
 # read years from SURFRAD path
-PATH = pathlib.Path('C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
+PATH = pathlib.Path(
+    'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/Bondville_IL')
 YEARS = list(str(y) for y in PATH.iterdir())
 
 # accumulate daily energy
-EDAILY = []
+EDAILY = {}
 
 for year in YEARS:
     LOGGER.debug('year: %s', year)
     yearpath = PATH / year
-    #header, data = pvlib.iotools.get_psm3(LATITUDE, LONGITUDE, NREL_API_KEY, EMAIL, names=str(year))
+    # header, data = pvlib.iotools.get_psm3(
+    #     LATITUDE, LONGITUDE, NREL_API_KEY, EMAIL, names=str(year))
     data = [pvlib.iotools.read_surfrad(f) for f in yearpath.iterdir()]
     dfs, heads = zip(*data)
     df = pd.concat(dfs)
@@ -130,28 +134,47 @@ for year in YEARS:
     temp_cell = pvlib.temperature.pvsyst_cell(poa_global, temp_air)
 
     # this is the magic
-    cecparams = pvlib.pvsystem.calcparams_cec(
-            effective_irradiance, temp_cell,
-            CECMOD_MONO.alpha_sc, CECMOD_MONO.a_ref,
-            CECMOD_MONO.I_L_ref, CECMOD_MONO.I_o_ref,
-            CECMOD_MONO.R_sh_ref, CECMOD_MONO.R_s, CECMOD_MONO.Adjust)
-    mpp = pvlib.pvsystem.max_power_point(*cecparams, method='newton')
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        cecparams = pvlib.pvsystem.calcparams_cec(
+                effective_irradiance, temp_cell,
+                CECMOD_MONO.alpha_sc, CECMOD_MONO.a_ref,
+                CECMOD_MONO.I_L_ref, CECMOD_MONO.I_o_ref,
+                CECMOD_MONO.R_sh_ref, CECMOD_MONO.R_s, CECMOD_MONO.Adjust)
+        mpp = pvlib.pvsystem.max_power_point(*cecparams, method='newton')
     mpp = pd.DataFrame(mpp, index=TIMES)
 
     # find ourly averages and daily totals
     Ehourly = mpp.p_mp.resample('H').mean()
     Edaily = Ehourly.resample('D').sum()
-    EDAILY.append(Edaily)
+    LOGGER.debug('%s annual energy: %g[kWh]', year_start, sum(Edaily) / 1000.0)
+    EDAILY[year_start] = Edaily
 
-# get yearly totals
-EYEAR = [sum(e) for e in EDAILY if len(e) > 350]
+# get yearly totals scaled to number of days
+leapdays = 366.0 if calendar.isleap(int(year_start)) else 365.0
+EYEAR = {
+    y: sum(e)/1000.0 * (leapdays/len(e)) for y, e in EDAILY.items()
+    if len(e) > 350}
+EYEAR = pd.Series(EYEAR)
+LOGGER.info('annual statistics [kWh]:\n%r', EYEAR.describe())
+P50 = EYEAR.median()
+P90 = EYEAR.quantile(0.1)
 
+# stop logging
 LOGGER.setLevel(logging.CRITICAL)
 
-f, ax = plt.subplots(2, 1, figsize=(8, 6))
-yield_daily = pd.concat(EDAILY) / 300.0 / 24 * 100
+# site name:
+SITE = PATH.parts[-1]
+
+# make plots
+f, ax = plt.subplots(2, 1, figsize=(8, 6), num=SITE)
+yield_daily = pd.concat(EDAILY.values()) / 300.0 / 24.0 * 100.0
 yield_daily.plot(ax=ax[0])
 ax[0].set_ylabel('Daily DC Capacity [%]')
-ax[0].set_title('Multiyear data')
-sns.histplot(EYEAR, kde=True, ax=ax[1])
+ax[0].set_title(f'{SITE} Multiyear Data')
+sns.histplot(EYEAR.values, kde=True, ax=ax[1])
+ylim = ax[1].get_ylim()
+ax[1].plot([P50, P50], ylim, 'b--', [P90, P90], ylim, 'b--')
+ax[1].legend(['KDE', 'P50', 'P90'])
+ax[1].set_title(f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]')
 plt.tight_layout()
