@@ -1,0 +1,110 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.37,
+          40.05
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Bondville, IL",
+        "elevation (m)": 213,
+        "years": "1995-2021"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.24,
+          40.13
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Boulder, CO",
+        "elevation (m)": 1689,
+        "years": "1995-2021"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.02,
+          36.62
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Desert Rock, NV",
+        "elevation (m)": 1007,
+        "years": "1998-2021"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.10,
+          48.31
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Fort Peck, MT",
+        "elevation (m)": 634,
+        "years": "1995-2021"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.87,
+          34.25
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Goodwin Creek, MS",
+        "elevation (m)": 98,
+        "years": "1995-2021"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.93,
+          40.72
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Penn State, PA",
+        "elevation (m)": 376,
+        "years": ""
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.62,
+          43.73
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Sioux Falls, SD",
+        "elevation (m)": 473,
+        "years": "2003-2021"
+      }
+    }
+  ]
+}
