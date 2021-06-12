@@ -58,14 +58,14 @@ def read_surfrad_year(year_path, surfrad_path=SURFRAD_PATH):
     return df, header
 
 
-def estimate_air_temp(year_start, surfrad, lat, lon, cs, daze=366):
+def estimate_air_temp(year_start, surfrad, lat, lon, cs):
     """
     Use clear sky temps scaled by daily ratio of measured to clear sky global
     insolation.
 
     Parameters
     ----------
-    year_start : int
+    year_start : str
         SURFRAD data year
     surfrad : pandas.DateFrame
         surfrad data frame
@@ -75,8 +75,6 @@ def estimate_air_temp(year_start, surfrad, lat, lon, cs, daze=366):
         longitude in degrees east of prime meridian [deg]
     cs : pandas.DataFrame
         clear sky irradiances [W/m^2]
-    daze : int
-        number of days to include in air temp estimate, default 366
 
     Returns
     -------
@@ -92,6 +90,7 @@ def estimate_air_temp(year_start, surfrad, lat, lon, cs, daze=366):
         clear sky air temperatures in Celsius [C]
 
     """
+    daze = 367 if calendar.isleap(int(year_start)) else 366
     # create a leap year of minutes for the given year at UTC
     year_minutes = pd.date_range(
         start=year_start, freq='T', periods=daze*DAYMINUTES, tz='UTC')
@@ -102,23 +101,21 @@ def estimate_air_temp(year_start, surfrad, lat, lon, cs, daze=366):
     cs_temp_daily = cs_temp_air.values.reshape((daze, DAYMINUTES)) + KELVINS
     # get daily temperature range
     daily_delta_temp = np.array([td.max()-td.min() for td in cs_temp_daily])
+    daily_delta_temp = pd.Series(
+        daily_delta_temp, index=cs_temp_air.resample('D').mean().index)
     # calculate ratio of daily insolation versus clearsky
     ghi_ratio = surfrad.ghi.resample('D').sum() / cs.ghi.resample('D').sum()
     ghi_ratio = ghi_ratio.rename('ghi_ratio')
-    # scale daily temperature delta by the ratio of insolation from day before
-    temp_adj = (ghi_ratio - 1.0)*daily_delta_temp[1:]  # use next day
-    temp_adj = temp_adj.rename('temp_adj')
     # apply ghi ratio to next day, wrap days to start at day 1
-    day1 = temp_adj.index[0]
-    LOGGER.info(day1)
-    LOGGER.info(temp_adj.iloc[0])
-    temp_adj.index = temp_adj.index + to_offset('1D')
+    day1 = ghi_ratio.index[0]
+    ghi_ratio.index = ghi_ratio.index + to_offset('1D')
     # set day 1 estimated air temp equal to last day
-    temp_adj[day1] = temp_adj.iloc[-1]
+    ghi_ratio[day1] = ghi_ratio.iloc[-1]
     # fix day 1 is added last, so out of order
-    temp_adj = temp_adj.sort_index()
-    LOGGER.info(temp_adj.head())
-    LOGGER.info(temp_adj.tail())
+    ghi_ratio = ghi_ratio.sort_index()
+    # scale daily temperature delta by the ratio of insolation from day before
+    temp_adj = (ghi_ratio - 1.0)*daily_delta_temp[ghi_ratio.index]  # use next day
+    temp_adj = temp_adj.rename('temp_adj')
     # interpolate smoothly, but fill forward minutes in last day
     est_air_temp = pd.concat(
         [cs_temp_air,
@@ -136,108 +133,108 @@ if __name__ == "__main__":
     # accumulate daily energy
     EDAILY = {}
 
-    # for year_path in YEARS:
-    year_path = YEARS[-5]
-    df, header = read_surfrad_year(year_path)
+    for year_path in YEARS:
+        # year_path = YEARS[-5]
+        df, header = read_surfrad_year(year_path)
 
-    # the year is at the end of the path
-    # FIXME: this only works on windows paths, use pathlib Path objects instead
-    year_start = year_path.rsplit('\\', 1)[1]
+        # the year is at the end of the path
+        # FIXME: this only works on windows paths, use pathlib Path objects instead
+        year_start = year_path.rsplit('\\', 1)[1]
 
-    # location
-    LATITUDE = header['latitude']
-    LONGITUDE = header['longitude']
-    ELEVATION = header['elevation']
+        # location
+        LATITUDE = header['latitude']
+        LONGITUDE = header['longitude']
+        ELEVATION = header['elevation']
 
-    # zero out negative (night?) GHI
-    ghi = df.ghi.values
-    ghi = np.where(ghi < 0, 0, ghi)
+        # zero out negative (night?) GHI
+        ghi = df.ghi.values
+        ghi = np.where(ghi < 0, 0, ghi)
 
-    # get solar position
-    TIMES = df.index
-    sp = pvlib.solarposition.get_solarposition(
-            TIMES, LATITUDE, LONGITUDE)
-    solar_zenith = sp.apparent_zenith.values
-    solar_azimuth = sp.azimuth.values
-    zenith = sp.zenith.values
+        # get solar position
+        TIMES = df.index
+        sp = pvlib.solarposition.get_solarposition(
+                TIMES, LATITUDE, LONGITUDE)
+        solar_zenith = sp.apparent_zenith.values
+        solar_azimuth = sp.azimuth.values
+        zenith = sp.zenith.values
 
-    # we don't trust SURFRAD DNI or DHI b/c it's often missing
-    # dni = df.dni.values
-    # dhi = df.dhi.values
+        # we don't trust SURFRAD DNI or DHI b/c it's often missing
+        # dni = df.dni.values
+        # dhi = df.dhi.values
 
-    # we also don't trust air temp, RH, or pressure, same reason
-    # temp_air = df.temp_air.values
-    # relative_humidity = df.relative_humidity.values
-    # pressure = df.pressues.values
-    # wind_speed = df.wind_speed.values
+        # we also don't trust air temp, RH, or pressure, same reason
+        # temp_air = df.temp_air.values
+        # relative_humidity = df.relative_humidity.values
+        # pressure = df.pressues.values
+        # wind_speed = df.wind_speed.values
 
-    # check the calculated zenith from SURFRAD
-    ze_mbe = 100 * (
-        sum(solar_zenith - df.solar_zenith.values)
-        / sum(df.solar_zenith.values))
-    LOGGER.info(f'zenith MBE: {ze_mbe}%')
+        # check the calculated zenith from SURFRAD
+        ze_mbe = 100 * (
+            sum(solar_zenith - df.solar_zenith.values)
+            / sum(df.solar_zenith.values))
+        LOGGER.info(f'zenith MBE: {ze_mbe}%')
 
-    # get irrad components
-    irrad = pvlib.irradiance.erbs(ghi, zenith, TIMES)
-    dni = irrad.dni.values
-    dhi = irrad.dhi.values
-    kt = irrad.kt.values  # clearness index
+        # get irrad components
+        irrad = pvlib.irradiance.erbs(ghi, zenith, TIMES)
+        dni = irrad.dni.values
+        dhi = irrad.dhi.values
+        kt = irrad.kt.values  # clearness index
 
-    # relative air mass
-    AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
-    # ambient pressure
-    PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
-    # absolute (pressure adjusted ) airmass
-    AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
-    # calculate irradiance inputs
-    dni_extra = pvlib.irradiance.get_extra_radiation(TIMES).values
-    # Linke turbidity
-    TL = pvlib.clearsky.lookup_linke_turbidity(TIMES, LATITUDE, LONGITUDE)
-    # clear sky irradiance
-    CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
+        # relative air mass
+        AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
+        # ambient pressure
+        PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
+        # absolute (pressure adjusted ) airmass
+        AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
+        # calculate irradiance inputs
+        dni_extra = pvlib.irradiance.get_extra_radiation(TIMES).values
+        # Linke turbidity
+        TL = pvlib.clearsky.lookup_linke_turbidity(TIMES, LATITUDE, LONGITUDE)
+        # clear sky irradiance
+        CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
 
-    # estimate air temp
-    est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air = \
-        estimate_air_temp(year_start, df,LATITUDE, LONGITUDE, CS)
-    temp_air = est_air_temp['Adjusted Temp (C)'].loc[TIMES].values
+        # estimate air temp
+        est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air = \
+            estimate_air_temp(year_start, df,LATITUDE, LONGITUDE, CS)
+        temp_air = est_air_temp['Adjusted Temp (C)'].loc[TIMES].values
 
-    # tracker positions
-    tracker = pvlib.tracking.singleaxis(solar_zenith, solar_azimuth)
-    surface_tilt = tracker['surface_tilt']
-    surface_azimuth = tracker['surface_azimuth']
+        # tracker positions
+        tracker = pvlib.tracking.singleaxis(solar_zenith, solar_azimuth)
+        surface_tilt = tracker['surface_tilt']
+        surface_azimuth = tracker['surface_azimuth']
 
-    # irrad components in plane of array
-    poa_sky_diffuse = pvlib.irradiance.get_sky_diffuse(
-            surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
-            dni, ghi, dhi, dni_extra=dni_extra, model='haydavies')
-    aoi = tracker['aoi']
-    poa_ground_diffuse = pvlib.irradiance.get_ground_diffuse(
-            surface_tilt, ghi)
-    poa = pvlib.irradiance.poa_components(
-            aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
-    poa_direct = poa['poa_direct']
-    poa_diffuse = poa['poa_diffuse']
-    poa_global = poa['poa_global']
-    iam = pvlib.iam.ashrae(aoi)
-    effective_irradiance = poa_direct*iam + poa_diffuse
-    temp_cell = pvlib.temperature.pvsyst_cell(poa_global, temp_air)
+        # irrad components in plane of array
+        poa_sky_diffuse = pvlib.irradiance.get_sky_diffuse(
+                surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
+                dni, ghi, dhi, dni_extra=dni_extra, model='haydavies')
+        aoi = tracker['aoi']
+        poa_ground_diffuse = pvlib.irradiance.get_ground_diffuse(
+                surface_tilt, ghi)
+        poa = pvlib.irradiance.poa_components(
+                aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
+        poa_direct = poa['poa_direct']
+        poa_diffuse = poa['poa_diffuse']
+        poa_global = poa['poa_global']
+        iam = pvlib.iam.ashrae(aoi)
+        effective_irradiance = poa_direct*iam + poa_diffuse
+        temp_cell = pvlib.temperature.pvsyst_cell(poa_global, temp_air)
 
-    # this is the magic
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        cecparams = pvlib.pvsystem.calcparams_cec(
-                effective_irradiance, temp_cell,
-                CECMOD_MONO.alpha_sc, CECMOD_MONO.a_ref,
-                CECMOD_MONO.I_L_ref, CECMOD_MONO.I_o_ref,
-                CECMOD_MONO.R_sh_ref, CECMOD_MONO.R_s, CECMOD_MONO.Adjust)
-        mpp = pvlib.pvsystem.max_power_point(*cecparams, method='newton')
-    mpp = pd.DataFrame(mpp, index=TIMES)
+        # this is the magic
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            cecparams = pvlib.pvsystem.calcparams_cec(
+                    effective_irradiance, temp_cell,
+                    CECMOD_MONO.alpha_sc, CECMOD_MONO.a_ref,
+                    CECMOD_MONO.I_L_ref, CECMOD_MONO.I_o_ref,
+                    CECMOD_MONO.R_sh_ref, CECMOD_MONO.R_s, CECMOD_MONO.Adjust)
+            mpp = pvlib.pvsystem.max_power_point(*cecparams, method='newton')
+        mpp = pd.DataFrame(mpp, index=TIMES)
 
-    # find ourly averages and daily totals
-    Ehourly = mpp.p_mp.resample('H').mean()
-    Edaily = Ehourly.resample('D').sum()
-    LOGGER.info('%s annual energy: %g[kWh]', year_start, sum(Edaily) / 1000.0)
-    EDAILY[year_start] = Edaily
+        # find ourly averages and daily totals
+        Ehourly = mpp.p_mp.resample('H').mean()
+        Edaily = Ehourly.resample('D').sum()
+        LOGGER.info('%s annual energy: %g[kWh]', year_start, sum(Edaily) / 1000.0)
+        EDAILY[year_start] = Edaily
 
     # get yearly totals scaled to number of days
     leapdays = 366.0 if calendar.isleap(int(year_start)) else 365.0

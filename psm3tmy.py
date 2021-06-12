@@ -46,7 +46,7 @@ def run_psm3tmy(latitude, longitude, cecmod, apikey=NREL_API_KEY, email=EMAIL):
 
     # irrad in plane of array
     poa_ground_diffuse = pvlib.irradiance.get_ground_diffuse(
-            surface_tilt, ghi, albedo=surface_albedo)
+            surface_tilt, ghi)  # do not use albedo=surface_albedo
     poa = pvlib.irradiance.poa_components(
             aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
     poa_direct = poa['poa_direct']
@@ -154,7 +154,7 @@ def run_tmy3(tmy3path, latitude, longitude, cecmod):
 
     # irrad in plane of array
     poa_ground_diffuse = pvlib.irradiance.get_ground_diffuse(
-            surface_tilt, ghi, albedo=albedo)
+            surface_tilt, ghi)  # do not use albedo=albedo
     poa = pvlib.irradiance.poa_components(
             aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
     poa_direct = poa['poa_direct']
