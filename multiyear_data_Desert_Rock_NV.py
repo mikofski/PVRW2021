@@ -106,7 +106,7 @@ for year in YEARS:
     AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
     PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
     AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
-    CS = pvlib.clearsky.ineichen(solar_zenith, AM, TL, ELEVATION, dni_extra)
+    CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
     cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
         year_minutes, LATITUDE, LONGITUDE)
 

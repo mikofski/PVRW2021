@@ -25,16 +25,11 @@ sns.set()
 plt.ion()
 
 # no inverters, just DC power
-# INVERTERS = pvlib.pvsystem.retrieve_sam('CECInverter')
-# INVERTER_10K = INVERTERS['SMA_America__SB10000TL_US__240V_']
 
 # choose typical front-contact silicon modules
 CECMODS = pvlib.pvsystem.retrieve_sam('CECMod')
 # for now, for simplicity, just one mono-silicon module, mono
 CECMOD_MONO = CECMODS['Canadian_Solar_Inc__CS6X_300M']
-
-NREL_API_KEY = os.getenv('NREL_API_KEY', 'DEMO_KEY')
-EMAIL = os.getenv('EMAIL', 'bwana.marko@yahoo.com')
 
 # read years from SURFRAD path
 PATH = pathlib.Path(
@@ -46,6 +41,45 @@ TMY3_PATH = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/726510TYA.CSV'
 TMY3_PATH_2 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/726515TYA.CSV'
 # TMY3_PATH_3 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
 # TMY3_PATH_4 = 'C:/Users/SFValidation3/Desktop/Mark Mikofski/SURFRAD/.CSV'
+
+
+def estimate_air_temp(year_path, dni_extra, solar_zenith, times=TIMES,
+                      lat=LATITUDE, lon=LONGITUDE, elev=ELEVATION):
+    """
+    Use clear sky temps scaled by daily ratio of measured to clear sky global
+    insolation.
+
+    Parameters
+    ----------
+    year_path : str
+        path to folder containing SURFRAD data for a single year
+    dni_extra : numpy.array
+        time series of extraterrestrial [W/m^2]
+    solar_zenith : numpy.array
+        time series of apparent (refracted) solar zenith in degrees [deg]
+    times : pandas.DateTimeIndex
+        times series
+    lat : float
+        latitude in degrees north of equator [deg]
+    lon : float
+        longitude in degrees east of prime meridian [deg]
+    elev : float
+        elevation in meters above sea level [m]
+    """
+    # the year is at the end of the path
+    # FIXME: this only works on windows paths, use pathlib Path objects instead
+    year_start = year_path.rsplit('\\', 1)[1]
+    # create a leap year of minutes for the given year at UTC
+    year_minutes = pd.date_range(
+        start=year_start, freq='T', periods=527040, tz='UTC')
+    tl = pvlib.clearsky.lookup_linke_turbidity(times, lat, lon)
+    am = pvlib.atmosphere.get_relative_airmass(solar_zenith)
+    press = pvlib.atmosphere.alt2pres(elev)
+    ama = pvlib.atmosphere.get_absolute_airmass(am, press)
+    cs = pvlib.clearsky.ineichen(solar_zenith, ama, tl, elec, dni_extra)
+    cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
+        year_minutes, lat, lon)
+
 
 # accumulate daily energy
 EDAILY = {}
@@ -108,7 +142,7 @@ TL = pvlib.clearsky.lookup_linke_turbidity(TIMES, LATITUDE, LONGITUDE)
 AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
 PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
 AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
-CS = pvlib.clearsky.ineichen(solar_zenith, AM, TL, ELEVATION, dni_extra)
+CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
 cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
     year_minutes, LATITUDE, LONGITUDE)
 
