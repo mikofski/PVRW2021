@@ -197,7 +197,7 @@ if __name__ == "__main__":
     CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
 
     # estimate air temp
-    est_air_temp, _, _, _, cs_temp_air = \
+    est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air = \
         estimate_air_temp(year_start, df,LATITUDE, LONGITUDE, CS)
     temp_air = est_air_temp['Adjusted Temp (C)'].loc[TIMES].values
 
