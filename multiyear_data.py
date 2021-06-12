@@ -58,8 +58,7 @@ def read_surfrad_year(year_path, surfrad_path=SURFRAD_PATH):
     return df, header
 
 
-def estimate_air_temp(year_start, dni_extra, solar_zenith, surfrad,
-                      lat, lon, elev, daze=366):
+def estimate_air_temp(year_start, surfrad, lat, lon, cs, daze=366):
     """
     Use clear sky temps scaled by daily ratio of measured to clear sky global
     insolation.
@@ -68,48 +67,34 @@ def estimate_air_temp(year_start, dni_extra, solar_zenith, surfrad,
     ----------
     year_start : int
         SURFRAD data year
-    dni_extra : numpy.array
-        time series of extraterrestrial [W/m^2]
-    solar_zenith : numpy.array
-        time series of apparent (refracted) solar zenith in degrees [deg]
     surfrad : pandas.DateFrame
         surfrad data frame
     lat : float
         latitude in degrees north of equator [deg]
     lon : float
         longitude in degrees east of prime meridian [deg]
-    elev : float
-        elevation in meters above sea level [m]
+    cs : pandas.DataFrame
+        clear sky irradiances [W/m^2]
+    daze : int
+        number of days to include in air temp estimate, default 366
 
     Returns
     -------
+    est_air_temp : pandas.DataFrame
+        estimated air temperature in Celsius [C]
+    temp_adj : pandas.Series
+        temperature adjustment [C}
+    ghi_ratio : pandas.Series
+        ratio of  daily SURFRAD to clearsky GHI insolation
+    daily_delta_temp : numpy.array
+        daily temperature range, max - min, in Kelvin [K]
     cs_temp_air : pandas.Series
         clear sky air temperatures in Celsius [C]
-    cs : pandas.DataFrame
-        clear sky irradiances [W/m^2]
-    ama : numpy.array
-        absolute air mass
-    press : float
-        ambient air pressure [mbar]
-    am : numpy.array
-        relative air mass
-    tl : pandas.Series
-        Linke turbidity factors
+
     """
-    times = surfrad.index
     # create a leap year of minutes for the given year at UTC
     year_minutes = pd.date_range(
         start=year_start, freq='T', periods=daze*DAYMINUTES, tz='UTC')
-    # Linke turbidity
-    tl = pvlib.clearsky.lookup_linke_turbidity(times, lat, lon)
-    # relative air mass
-    am = pvlib.atmosphere.get_relative_airmass(solar_zenith)
-    # ambient pressure
-    press = pvlib.atmosphere.alt2pres(elev)
-    # absolute (pressure adjusted ) airmass
-    ama = pvlib.atmosphere.get_absolute_airmass(am, press)
-    # clear sky irradiance
-    cs = pvlib.clearsky.ineichen(solar_zenith, ama, tl, elev, dni_extra)
     # clear sky temperature
     cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
         year_minutes, lat, lon)
@@ -143,8 +128,7 @@ def estimate_air_temp(year_start, dni_extra, solar_zenith, surfrad,
     # if GHI/CS_GHI > 1 then adjustment > DeltaT
     est_air_temp['Adjusted Temp (C)'] = (
         est_air_temp['Clear Sky Temperature (C)'] + est_air_temp.temp_adj)
-    return (est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air,
-            cs, ama, press, am, tl)
+    return est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air
 
 
 if __name__ == "__main__":
@@ -199,13 +183,22 @@ if __name__ == "__main__":
     dhi = irrad.dhi.values
     kt = irrad.kt.values  # clearness index
 
+    # relative air mass
+    AM = pvlib.atmosphere.get_relative_airmass(solar_zenith)
+    # ambient pressure
+    PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
+    # absolute (pressure adjusted ) airmass
+    AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
     # calculate irradiance inputs
     dni_extra = pvlib.irradiance.get_extra_radiation(TIMES).values
+    # Linke turbidity
+    TL = pvlib.clearsky.lookup_linke_turbidity(TIMES, LATITUDE, LONGITUDE)
+    # clear sky irradiance
+    CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
 
     # estimate air temp
-    (est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air, CS, AMA, PRESS,
-     AM, TL) = estimate_air_temp(year_start, dni_extra, solar_zenith, df, LATITUDE,
-                                 LONGITUDE, ELEVATION)
+    est_air_temp, _, _, _, cs_temp_air = \
+        estimate_air_temp(year_start, df,LATITUDE, LONGITUDE, CS)
     temp_air = est_air_temp['Adjusted Temp (C)'].loc[TIMES].values
 
     # tracker positions
