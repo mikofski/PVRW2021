@@ -134,7 +134,7 @@ if __name__ == "__main__":
     EDAILY = {}
 
     for year_path in YEARS:
-        # year_path = YEARS[-5]
+
         df, header = read_surfrad_year(year_path)
 
         # the year is at the end of the path

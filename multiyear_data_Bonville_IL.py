@@ -12,6 +12,7 @@ import rdtools
 from scipy import stats
 import seaborn as sns
 import psm3tmy
+from multiyear_data import estimate_air_temp
 
 logging.basicConfig()
 LOGGER = logging.getLogger()
@@ -104,15 +105,11 @@ for year in YEARS:
     PRESS = pvlib.atmosphere.alt2pres(ELEVATION)
     AMA = pvlib.atmosphere.get_absolute_airmass(AM, PRESS)
     CS = pvlib.clearsky.ineichen(solar_zenith, AMA, TL, ELEVATION, dni_extra)
-    cs_temp_air = rdtools.clearsky_temperature.get_clearsky_tamb(
-        year_minutes, LATITUDE, LONGITUDE)
 
-    # scale clear sky air temp to SURFRAD, and zero out night
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        temp_air = np.where(
-            CS.ghi.values <= 0, 0,
-            cs_temp_air.loc[TIMES].values * ghi / CS.ghi.values)
+    # estimate air temp
+    est_air_temp, temp_adj, ghi_ratio, daily_delta_temp, cs_temp_air = \
+        estimate_air_temp(year_start, df,LATITUDE, LONGITUDE, CS)
+    temp_air = est_air_temp['Adjusted Temp (C)'].loc[TIMES].values
 
     # tracker positions
     tracker = pvlib.tracking.singleaxis(solar_zenith, solar_azimuth)
