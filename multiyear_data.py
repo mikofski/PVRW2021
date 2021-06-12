@@ -294,7 +294,10 @@ if __name__ == "__main__":
     # make plots
     f, ax = plt.subplots(2, 1, figsize=(10, 8), num=SITE)
     yield_daily = pd.concat(EDAILY.values()) / 300.0 / 24.0 * 100.0
-    yield_daily.plot(ax=ax[0])
+    yield_daily.plot(ax=ax[0], label='daily')
+    yield_yearly = EYEAR*1000 / 300.0 / 8760.0 * 100.0
+    yield_yearly.index = pd.date_range(start=f'{EYEAR.index[0]}', end=f'{int(EYEAR.index[-1])+1}',freq='Y')
+    yield_yearly.plot(ax=ax[0], label='yearly')
     ax[0].set_ylabel('Daily DC Capacity [%]')
     ax[0].set_title(f'{SITE} Multiyear Data')
     sns.histplot(EYEAR.values, kde=True, ax=ax[1])
