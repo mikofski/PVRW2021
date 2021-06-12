@@ -192,7 +192,10 @@ SITE = PATH.parts[-1]
 # make plots
 f, ax = plt.subplots(2, 1, figsize=(10, 8), num=SITE)
 yield_daily = pd.concat(EDAILY.values()) / 300.0 / 24.0 * 100.0
-yield_daily.plot(ax=ax[0])
+yield_daily.plot(ax=ax[0], label='daily')
+yield_yearly = EYEAR*1000 / 300.0 / 8760.0 * 100.0
+yield_yearly.index = pd.date_range(start=f'{EYEAR.index[0]}', end=f'{int(EYEAR.index[-1])+1}',freq='Y')
+yield_yearly.plot(ax=ax[0], label='yearly')
 ax[0].set_ylabel('Daily DC Capacity [%]')
 ax[0].set_title(f'{SITE} Multiyear Data')
 sns.histplot(EYEAR.values, kde=True, ax=ax[1])
@@ -208,3 +211,19 @@ ax[1].set_title(
     f'{SITE} Distribution: P50 = {P50:g}[kWh], P90 = {P90:g}[kWh]'
     f'\nPSM3 = {psm3eyear:g}[kWh], TMY2 = {tmy2eyear:g}[kWh], TMY3 = {tmy3eyear:g}[kWh]')
 plt.tight_layout()
+
+# save all
+plt.savefig(f'{SITE}.png')
+yield_daily.to_csv(f'{SITE}_yield_daily.csv', index_label='datetime')
+EYEAR.to_csv(f'{SITE}_EYEAR.csv', index_label='year', header=['EYEAR'])
+results = {
+    'P50': P50, 'P90': P90,
+    'psm3eyear': psm3eyear, 'psm3quantile': psm3quantile,
+    'tmy2eyear': tmy2eyear, 'tmy2quantile': tmy2quantile,
+    'tmy3eyear': tmy3eyear, 'tmy3quantile': tmy3quantile,
+    # 'tmy3eyear_2': tmy3eyear_2, 'tmy3quantile_2': tmy3quantile_2,
+    # 'tmy3eyear_3': tmy3eyear_3, 'tmy3quantile_3': tmy3quantile_3,
+    # 'tmy3eyear_4': tmy3eyear_4, 'tmy3quantile_4': tmy3quantile_4,
+}
+with open(f'{SITE}_results.json', 'w') as f:
+    json.dump(results, f, indent=2)
