@@ -32,8 +32,23 @@
         "elevation (m)": 187,
         "WBAN": "93822",
         "marker-color": "#fa0505"
+      }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.683,
+          39.85
+        ]
       },
-      "style": {"color": "red"}
+      "type": "Feature",
+      "properties": {
+        "station": "Springfield Capital AP (TMY3)",
+        "elevation (m)": 179,
+        "USAF": "724390",
+        "marker-color": "#fa0505"
+      }
     },
     {
       "geometry": {
