@@ -13,41 +13,7 @@
       "properties": {
         "station": "Bondville, IL",
         "elevation (m)": 213,
-        "years": "1995-2021",
-        "marker-symbol": "star",
-        "marker-color": "#fa0505"
-      }
-    },
-    {
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -89.66666666666667,
-          39.833333333333336
-        ]
-      },
-      "type": "Feature",
-      "properties": {
-        "station": "Springfield, IL (TMY2)",
-        "elevation (m)": 187,
-        "WBAN": "93822",
-        "marker-color": "#fa0505"
-      }
-    },
-    {
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -89.683,
-          39.85
-        ]
-      },
-      "type": "Feature",
-      "properties": {
-        "station": "Springfield Capital AP (TMY3)",
-        "elevation (m)": 179,
-        "USAF": "724390",
-        "marker-color": "#fa0505"
+        "years": "1995-2021"
       }
     },
     {
@@ -139,6 +105,291 @@
         "elevation (m)": 473,
         "years": "2003-2021"
       }
+    },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -89.66666666666667,
+        39.833333333333336
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "SPRINGFIELD, IL (TMY2)",
+      "elevation (m)": 187.0,
+      "WBAN": "93822"
     }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -89.683,
+        39.85
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "SPRINGFIELD CAPITAL AP (TMY3)",
+      "elevation (m)": 179.0,
+      "USAF": 724390
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -105.25,
+        40.016666666666666
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "BOULDER, CO (TMY2)",
+      "elevation (m)": 1634.0,
+      "WBAN": "94018"
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -104.65,
+        39.833
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "DENVER INTL AP (TMY3)",
+      "elevation (m)": 1650.0,
+      "USAF": 725650
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -104.75,
+        39.717
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "AURORA BUCKLEY FIELD ANGB (TMY3)",
+      "elevation (m)": 1726.0,
+      "USAF": 724695
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -105.179,
+        39.742
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "DENVER/CENTENNIAL [GOLDEN - NREL] (TMY3)",
+      "elevation (m)": 1829.0,
+      "USAF": 724666
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -116.02,
+        36.63
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "MERCURY DESERT ROCK AP [SURFRAD] (TMY3)",
+      "elevation (m)": 935.0,
+      "USAF": 723870
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -106.61666666666666,
+        48.21666666666667
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "GLASGOW, MT (TMY2)",
+      "elevation (m)": 700.0,
+      "WBAN": "94008"
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -106.617,
+        48.217
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "GLASGOW INTL ARPT (TMY3)",
+      "elevation (m)": 699.0,
+      "USAF": 727680
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -89.98333333333333,
+        35.05
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "MEMPHIS, TN (TMY2)",
+      "elevation (m)": 87.0,
+      "WBAN": "13893"
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -90.083,
+        33.5
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "GREENWOOD LEFLORE ARPT (TMY3)",
+      "elevation (m)": 47.0,
+      "USAF": 722359
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -90.983,
+        33.483
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "GREENVILLE MUNICIPAL (TMY3)",
+      "elevation (m)": 42.0,
+      "USAF": 722356
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -89.983,
+        35.067
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "MEMPHIS INTERNATIONAL AP (TMY3)",
+      "elevation (m)": 81.0,
+      "USAF": 723340
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -88.45,
+        33.65
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "COLUMBUS AFB (TMY3)",
+      "elevation (m)": 68.0,
+      "USAF": 723306
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -77.05,
+        41.266666666666666
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "WILLIAMSPORT, PA (TMY2)",
+      "elevation (m)": 243.0,
+      "WBAN": "14778"
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -78.9,
+        41.183
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "DUBOIS FAA AP (TMY3)",
+      "elevation (m)": 553.0,
+      "USAF": 725125
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -96.73333333333333,
+        43.56666666666667
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "SIOUX_FALLS, SD (TMY2)",
+      "elevation (m)": 435.0,
+      "WBAN": "14944"
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -96.75,
+        43.583
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "SIOUX FALLS FOSS FIELD (TMY3)",
+      "elevation (m)": 433.0,
+      "USAF": 726510
+    }
+  },
+  {
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -96.817,
+        44.3
+      ]
+    },
+    "type": "Feature",
+    "properties": {
+      "station": "BROOKINGS (AWOS) (TMY3)",
+      "elevation (m)": 502.0,
+      "USAF": 726515
+    }
+  }
   ]
 }
