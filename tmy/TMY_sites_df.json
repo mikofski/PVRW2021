@@ -1,0 +1,135 @@
+{
+  "SPRINGFIELD, IL (TMY2)": {
+    "latitude": 39.833333333333336,
+    "longitude": -89.66666666666667,
+    "elevation": 187.0,
+    "WBAN": "93822",
+    "USAF": null
+  },
+  "SPRINGFIELD CAPITAL AP (TMY3)": {
+    "latitude": 39.85,
+    "longitude": -89.683,
+    "elevation": 179.0,
+    "WBAN": null,
+    "USAF": "724390"
+  },
+  "BOULDER, CO (TMY2)": {
+    "latitude": 40.016666666666666,
+    "longitude": -105.25,
+    "elevation": 1634.0,
+    "WBAN": "94018",
+    "USAF": null
+  },
+  "DENVER INTL AP (TMY3)": {
+    "latitude": 39.833,
+    "longitude": -104.65,
+    "elevation": 1650.0,
+    "WBAN": null,
+    "USAF": "725650"
+  },
+  "AURORA BUCKLEY FIELD ANGB (TMY3)": {
+    "latitude": 39.717,
+    "longitude": -104.75,
+    "elevation": 1726.0,
+    "WBAN": null,
+    "USAF": "724695"
+  },
+  "DENVER/CENTENNIAL [GOLDEN - NREL] (TMY3)": {
+    "latitude": 39.742,
+    "longitude": -105.179,
+    "elevation": 1829.0,
+    "WBAN": null,
+    "USAF": "724666"
+  },
+  "MERCURY DESERT ROCK AP [SURFRAD] (TMY3)": {
+    "latitude": 36.63,
+    "longitude": -116.02,
+    "elevation": 935.0,
+    "WBAN": null,
+    "USAF": "723870"
+  },
+  "GLASGOW, MT (TMY2)": {
+    "latitude": 48.21666666666667,
+    "longitude": -106.61666666666666,
+    "elevation": 700.0,
+    "WBAN": "94008",
+    "USAF": null
+  },
+  "GLASGOW INTL ARPT (TMY3)": {
+    "latitude": 48.217,
+    "longitude": -106.617,
+    "elevation": 699.0,
+    "WBAN": null,
+    "USAF": "727680"
+  },
+  "MEMPHIS, TN (TMY2)": {
+    "latitude": 35.05,
+    "longitude": -89.98333333333333,
+    "elevation": 87.0,
+    "WBAN": "13893",
+    "USAF": null
+  },
+  "GREENWOOD LEFLORE ARPT (TMY3)": {
+    "latitude": 33.5,
+    "longitude": -90.083,
+    "elevation": 47.0,
+    "WBAN": null,
+    "USAF": "722359"
+  },
+  "GREENVILLE MUNICIPAL (TMY3)": {
+    "latitude": 33.483,
+    "longitude": -90.983,
+    "elevation": 42.0,
+    "WBAN": null,
+    "USAF": "722356"
+  },
+  "MEMPHIS INTERNATIONAL AP (TMY3)": {
+    "latitude": 35.067,
+    "longitude": -89.983,
+    "elevation": 81.0,
+    "WBAN": null,
+    "USAF": "723340"
+  },
+  "COLUMBUS AFB (TMY3)": {
+    "latitude": 33.65,
+    "longitude": -88.45,
+    "elevation": 68.0,
+    "WBAN": null,
+    "USAF": "723306"
+  },
+  "WILLIAMSPORT, PA (TMY2)": {
+    "latitude": 41.266666666666666,
+    "longitude": -77.05,
+    "elevation": 243.0,
+    "WBAN": "14778",
+    "USAF": null
+  },
+  "DUBOIS FAA AP (TMY3)": {
+    "latitude": 41.183,
+    "longitude": -78.9,
+    "elevation": 553.0,
+    "WBAN": null,
+    "USAF": "725125"
+  },
+  "SIOUX_FALLS, SD (TMY2)": {
+    "latitude": 43.56666666666667,
+    "longitude": -96.73333333333333,
+    "elevation": 435.0,
+    "WBAN": "14944",
+    "USAF": null
+  },
+  "SIOUX FALLS FOSS FIELD (TMY3)": {
+    "latitude": 43.583,
+    "longitude": -96.75,
+    "elevation": 433.0,
+    "WBAN": null,
+    "USAF": "726510"
+  },
+  "BROOKINGS (AWOS) (TMY3)": {
+    "latitude": 44.3,
+    "longitude": -96.817,
+    "elevation": 502.0,
+    "WBAN": null,
+    "USAF": "726515"
+  }
+}
