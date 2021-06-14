@@ -13,8 +13,27 @@
       "properties": {
         "station": "Bondville, IL",
         "elevation (m)": 213,
-        "years": "1995-2021"
+        "years": "1995-2021",
+        "marker-symbol": "star",
+        "marker-color": "#fa0505"
       }
+    },
+    {
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.66666666666667,
+          39.833333333333336
+        ]
+      },
+      "type": "Feature",
+      "properties": {
+        "station": "Springfield, IL (TMY2)",
+        "elevation (m)": 187,
+        "WBAN": "93822",
+        "marker-color": "#fa0505"
+      },
+      "style": {"color": "red"}
     },
     {
       "geometry": {
