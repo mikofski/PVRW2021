@@ -1,0 +1,8 @@
+station,P50,P90,psm3eyear,psm3quantile,tmy2eyear,tmy2quantile,tmy3eyear,tmy3quantile,tmy3eyear_2,tmy3quantile_2,tmy3eyear_3,tmy3quantile_3,tmy3eyear_4,tmy3quantile_4
+Bondville_IL_results,20.2,18.7,21.9,96.2,21.1,88.5,20.7,88.5,,,,,,
+Boulder_CO_results,23.4,22.9,23.7,56.0,23.8,64.0,23.5,52.0,23.6,56.0,23.0,20.0,,
+Desert_Rock_NV_results,28.6,27.5,29.7,100.0,,,28.8,81.8,,,,,,
+Fort_Peck_MT_results,20.3,19.5,21.0,88.0,20.7,76.0,20.8,80.0,,,,,,
+Goodwin_Creek_MS_results,21.1,19.7,23.9,100.0,22.5,92.3,21.9,73.1,21.8,69.2,21.7,65.4,20.8,46.2
+Penn_State_PA_results,18.6,17.2,20.2,100.0,18.1,36.4,17.5,13.6,,,,,,
+Sioux_Falls_SD_results,20.7,19.6,22.0,94.1,21.1,70.6,20.8,58.8,20.0,17.6,,,,
